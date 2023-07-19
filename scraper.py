@@ -1,10 +1,18 @@
 from bs4 import BeautifulSoup as soup
 import requests
 
-# get the urls of todays articles
-def get_bbc_world_links(url="https://www.bbc.com/news/world") -> list:
+# get beautiful soup object
+def get_soup_object(url:str):
+
   html = requests.get(url)
   bsobj = soup(html.content, 'lxml')
+
+  return bsobj
+
+# get the urls of todays articles
+def get_bbc_world_links(url="https://www.bbc.com/news/world") -> list:
+
+  bsobj = get_soup_object(url)
 
   urls = []
   for link in bsobj.findAll("a", attrs={'class':'gs-c-promo-heading gs-o-faux-block-link__overlay-link gel-pica-bold nw-o-link-split__anchor'}):
@@ -16,14 +24,6 @@ def get_bbc_world_links(url="https://www.bbc.com/news/world") -> list:
   all_urls = list(set(urls))
 
   return all_urls
-
-# get beautiful soup object
-def get_soup_object(url:str):
-
-  html = requests.get(url)
-  bsobj = soup(html.content, 'lxml')
-
-  return bsobj
 
 # get article headline
 def get_article_headings(url:str) -> str:
