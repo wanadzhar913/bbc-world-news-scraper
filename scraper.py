@@ -17,19 +17,27 @@ def get_bbc_world_links(url="https://www.bbc.com/news/world") -> list:
 
   return all_urls
 
-def get_article_headings(url:str) -> str:
+# get beautiful soup object
+def get_soup_object(url:str):
 
   html = requests.get(url)
   bsobj = soup(html.content, 'lxml')
+
+  return bsobj
+
+# get article headline
+def get_article_headings(url:str) -> str:
+
+  bsobj = get_soup_object(url)
 
   heading = bsobj.find('h1', attrs={'id':'main-heading'}).text
   
   return heading
 
+# get author name
 def get_article_contributors(url:str) -> str:
 
-  html = requests.get(url)
-  bsobj = soup(html.content, 'lxml')
+  bsobj = get_soup_object(url)
 
   # to account for some articles not having contributors
   try:
@@ -38,11 +46,11 @@ def get_article_contributors(url:str) -> str:
     return contributors_only
   except:
     return ""
-  
+
+# get article text/body
 def get_article_body(url:str) -> str:
 
-  html = requests.get(url)
-  bsobj = soup(html.content, 'lxml')
+  bsobj = get_soup_object(url)
 
   # get article body
   paragraphs = []
@@ -61,12 +69,13 @@ def get_bbc_page_contents(url:str) -> str:
   # get name(s) of article's contributor(s)
   contributors = get_article_contributors(url=url)
 
-  # get article body
+  # get article text/body
   full_text = get_article_body(url=url)
 
   combined_text = 'Headline: ' + heading + '\n' + 'Contributor(s): ' + contributors + '\n' + full_text
   return combined_text
 
+# consolidate all articles into one long text
 def articles_for_embeddings(url_list=None):
   if url_list is None:
     url_list = get_bbc_world_links()
